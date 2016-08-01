@@ -1,4 +1,4 @@
-#include <http_asio.hpp>
+#include <http_asio/core.hpp>
 
 namespace h2a {
     
