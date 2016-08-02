@@ -30,7 +30,6 @@ private:
 private:
     static std::atomic<core*>   _inst{nullptr};    
     
-    std::uniqure_ptr<io_service_pool>       io_service_pool_;
 };
     
 }   // namespace h2a

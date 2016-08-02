@@ -1,17 +1,15 @@
 #pragma once
 
 #include <http2_asio/config.h>
+#include <http2_asio/common.hpp>
 
 #include <atomic>
 #include <memory>
 #include <future>
 #include <thread>
 
-#include <boost/asio.hpp>
 
 namespace h2a {
-
-using namespace as = boost::asio;
 
 class HTTP2_ASIO_API io_service_pool
 {
