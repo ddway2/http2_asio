@@ -1,5 +1,17 @@
-#include <http_asio/core.hpp>
+#include <http_asio2/core.hpp>
 
 namespace h2a {
-    
-}   // namespace
+
+core::core()
+{}
+
+core&
+core::get()
+{
+    if (_inst.load() == nullptr) {
+        _inst = new core();
+    }
+    return *_inst;
+}
+
+}   // namespace h2a
