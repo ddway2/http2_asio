@@ -14,14 +14,21 @@ public:
 };
 
 struct tcp_server_fixture {
-    
+    dummy_server dummy;
 };
 
 BOOST_FIXTURE_TEST_SUITE(tcp_server_test, tcp_server_fixture);
 
 BOOST_AUTO_TEST_CASE(instanciate_tcp_server)
 {
+    h2a::io_service_pool  pool(5);
+    h2a::server  srv(
+        pool, 
+        boost::posix_time::millisec(120),
+        boost::posix_time::millisec(120)
+    );
     
+    srv.listen(dummy, "0.0.0.0", "12345", true);
 }
 
 BOOST_AUTO_TEST_SUITE_END();
