@@ -1,8 +1,8 @@
 #define BOOST_TEST_MODULE test_tcp_server
 #include <boost/test/unit_test.hpp>
 
-#include <http2_asio/unit_test.hpp>
-#include <http2_asio/system_config.hpp>
+#include <http2-asio/unit_test.hpp>
+#include <http2-asio/system_config.hpp>
 
 #include <http2_asio/server.hpp>
 

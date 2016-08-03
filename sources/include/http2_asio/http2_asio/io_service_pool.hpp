@@ -1,6 +1,6 @@
 #pragma once
 
-#include <http2_asio/config.h>
+#include <http2-asio/config.h>
 #include <http2_asio/common.hpp>
 
 #include <atomic>

@@ -1,8 +1,10 @@
 #pragma once
 
-#include <http2_asio/config.h>
+#include <http2-asio/config.h>
+
 #include <http2_asio/common.hpp>
 #include <http2_asio/io_service_pool.hpp>
+#include <http2_asio/connection.hpp>
 
 #include <string>
 #include <memory>
@@ -10,10 +12,6 @@
 #include <vector>
 
 namespace h2a {
-    
-using as::ip::tcp;
-using ssl_context = as::ssl::context;
-using ssl_context_ptr = std::skared_ptr<ssl_context>;
     
 class HTTP2_ASIO_API server
 {
@@ -104,7 +102,7 @@ private:
                     c->start_handshake_timeout();
                     c->socket().async_handshake(
                         as::ssl::stream_base::server,
-                        [c](const bbost::system::error_code& e) {
+                        [c](const boost::system::error_code& e) {
                             if (e) {
                                 c->stop();
                                 return;
@@ -119,7 +117,7 @@ private:
                         }
                     );
                 }
-                start_accept(a, srv, ctx);
+                start_accept_tls(a, srv, ctx);
             }
         );
     }

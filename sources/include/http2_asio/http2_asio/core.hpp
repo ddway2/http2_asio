@@ -1,6 +1,6 @@
 #pragma once
 
-#include <http2_asio/config.h>
+#include <http2-asio/config.h>
 
 #include <atomic>
 #include <memory>
@@ -22,13 +22,12 @@ public:
     static core& get();
     
 private:
-    core();
  
 private:
     
     
 private:
-    static std::atomic<core*>   _inst{nullptr};    
+    
     
 };
     

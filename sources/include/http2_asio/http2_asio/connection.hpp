@@ -1,6 +1,6 @@
 #pragma once
 
-#include <http2_asio/config.h>
+#include <http2-asio/config.h>
 #include <http2_asio/common.hpp>
 
 #include <memory>
@@ -11,21 +11,21 @@ template<
     typename Server,
     typename Socket
 >
-class tcp_connection
-: public std::shared_from_this<self_type>
+class connection
+: public std::enable_shared_from_this<connection<Server, Socket>>
 {
 public:
     using self_type = connection<Server,Socket>;
     using socket_type = Socket;
     using server_type = Server;
     
-    using handler_type = Server::handler_type;
+    using handler_type = typename Server::handler_type;
     using handler_ptr = std::shared_ptr<handler_type>;
     
 public:
     /// CTOR 
     template<typename ...Args>
-    explicit tcp_connection(
+    explicit connection(
         server_type& s,
         const boost::posix_time::time_duration& tls_handshake_timeout,
         const boost::posix_time::time_duration& read_timeout,
@@ -53,7 +53,7 @@ public:
         
         stopped_ = true;
         boost::system::error_code ec;
-        socket_.lowest_lasyer().close(ec);
+        socket_.lowest_layer().close(ec);
         deadline_.cancel();
     }
     
@@ -62,7 +62,7 @@ public:
     {
         deadline_.expires_from_now(tls_handshake_timeout_);
         deadline_.async_wait(
-            std::bind(&connection::timeout_handler, shared_from_this())
+            std::bind(&connection::timeout_handler, this->shared_from_this())
         );
     }
     
@@ -71,7 +71,7 @@ public:
     {
         deadline_.expires_from_now(read_timeout_);
         deadline_.async_wait(
-            std::bind(&connection::timeout_handler, shared_from_this())
+            std::bind(&connection::timeout_handler, this->shared_from_this())
         );
     }
     
@@ -93,7 +93,7 @@ private:
         }
         
         deadline_.async_wait(
-            std::bind(&connection::timeout_handler, shared_from_this())
+            std::bind(&connection::timeout_handler, this->shared_from_this())
         );
     }
     

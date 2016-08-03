@@ -1,14 +1,14 @@
-#include <http2_asio/config.h>
+#include <http2-asio/config.h>
 
-#include <http2_asio.hpp>
+#include <http2_asio/common.hpp>
 
 #include <openssl/evp.h>
 
 namespace h2a {
     
-bool tls_h2_negotiated(ssl_context& socket)
+bool tls_h2_negotiated(ssl_socket& socket)
 {
-    auto ssl = socket.native_handle();
+/*    auto ssl = socket.native_handle();
     
     const unsigned char* next_proto = nullptr;
     unsigned int next_proto_len = 0;
@@ -22,7 +22,7 @@ bool tls_h2_negotiated(ssl_context& socket)
     
     if (next_proto == nullptr) {
         return false;
-    }
+    }*/
     
     return true;
 }

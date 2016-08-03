@@ -4,8 +4,8 @@ namespace h2a {
 
 server::server(
     io_service_pool& pool,
-    const std::chrono::milliseconds& tls_handshake_timeout,
-    const std::chrono::milliseconds& read_timeout
+    const boost::posix_time::time_duration& tls_handshake_timeout,
+    const boost::posix_time::time_duration& read_timeout
 )
 : io_service_pool_(pool),
   tls_handshake_timeout_(tls_handshake_timeout),
@@ -19,7 +19,7 @@ server::stop()
 {
     io_service_pool_.stop();
     for (auto& a : acceptor_list_) {
-        acceptor_list_.close();
+        a.close();
     }
 }
     
@@ -59,10 +59,10 @@ server::bind(const std::string& address, const std::string& port)
             continue;
         }
         
-        acceptor_list_.push_back(acceptor);
+        acceptor_list_.push_back(std::move(acceptor));
     }
     
-    if (acceptor_list_.empty() {
+    if (acceptor_list_.empty()) {
         std::ostringstream oss;
         oss << "h2a::server::bind - Error during binding: " << ec;
         throw std::runtime_error(oss.str());

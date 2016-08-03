@@ -30,8 +30,8 @@ io_service_pool::run(bool blocking)
         io_service_pool_.push_back(
             std::async(
                 std::launch::async,
-                (size_t (as::io_service::*)(void))& as::io_service::run, io_services_[i] 
-            );
+                (size_t (as::io_service::*)(void))& as::io_service::run, io_services_list_[i] 
+            )
         );
     }
     
@@ -56,7 +56,8 @@ io_service_pool::join()
     }
 }
 
-as::io_service& get_io_service()
+as::io_service& 
+io_service_pool::get_io_service()
 {
     auto& ios = *io_services_list_[next_io_service_index_];
     next_io_service_index_ = (next_io_service_index_ + 1) % io_services_list_.size();
