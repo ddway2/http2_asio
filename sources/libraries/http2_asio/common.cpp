@@ -6,9 +6,10 @@
 
 namespace h2a {
     
-bool tls_h2_negotiated(ssl_socket& socket)
+bool 
+tls_h2_negotiated(ssl_socket& socket)
 {
-/*    auto ssl = socket.native_handle();
+    auto ssl = socket.native_handle();
     
     const unsigned char* next_proto = nullptr;
     unsigned int next_proto_len = 0;
@@ -22,9 +23,19 @@ bool tls_h2_negotiated(ssl_socket& socket)
     
     if (next_proto == nullptr) {
         return false;
-    }*/
+    }
     
-    return true;
+    return check_h2_is_selected(std::string_view{(const char*)next_proto, next_proto_len});
+}
+
+bool 
+check_h2_is_selected(const std::string_view& proto)
+{
+    return (proto == NGHTTP2_H2)
+           ||
+           (proto == NGHTTP2_H2_16)
+           ||
+           (proto == NGHTTP2_H2_14);
 }
     
 }   // namespace h2a
