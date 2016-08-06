@@ -3,16 +3,18 @@
 #include <http2-asio/config.h>
 #include <http2_asio/common.hpp>
 
+#include <nghttp2/nghttp2.h>
+
 #include <memory>
 #include <array>
 
 namespace h2a {
     
-class http2_handler
-: std::enable_shared_from_this<http2_handler>
+class HTTP2_ASIO_API http2_session
+: std::enable_shared_from_this<http2_session>
 {
 public:
-    http2_handler(
+    http2_session(
         as::io_service& io,
         as::ip::tcp::endpoint ep
     )
@@ -20,8 +22,10 @@ public:
       ep_(ep)
     {}
     
-    bool start()
-    { return true; }
+    ~http2_session()
+    {}
+    
+    bool start();
     
     template<size_t N>
     inline bool on_read(
@@ -41,10 +45,13 @@ public:
     { return false; }
 
     inline as::io_service&     get_io_service()
-    { return io_service_ }
+    { return io_service_; }
+    
 private:
     as::io_service&             io_service_;
     as::ip::tcp::endpoint       ep_;
+    
+    nghttp2_session*            session_ = nullptr;
 };
     
 }   // namespace h2a
