@@ -42,7 +42,18 @@ public:
     /// start async connection
     void start()
     {
-        handler_ = std::make_shared<handler_type>();
+        boost::system::error_code ec;
+        
+        handler_ = std::make_shared<handler_type>(
+            socket_.get_io_service(),
+            socket_.lowest_layer().remote_endpoint(ec)    
+        );
+        
+        // Error during http2 handler start
+        if (!handler_->start()) {
+            stop();
+            return;
+        }
         
         read_data();
     }
