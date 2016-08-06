@@ -4,6 +4,7 @@
 #include <http2_asio/common.hpp>
 
 #include <memory>
+#include <array>
 
 namespace h2a {
 
@@ -42,6 +43,8 @@ public:
     void start()
     {
         handler_ = std::make_shared<handler_type>();
+        
+        read_data();
     }
     
     /// Stop async connection
@@ -97,11 +100,88 @@ private:
         );
     }
     
+    /// Read data from socket connection
+    void read_data()
+    {
+        deadline_.expires_from_now(read_timeout_);
+        
+        auto self = this->shared_from_this();
+        socket_.async_read_some(
+            as::buffer(read_buffer_),
+            [this,self](const boost::system::error_code& ec, size_t bytes_received){
+                if (ec) {
+                    stop();
+                    return;
+                }
+                
+                if(!handler_->on_read(read_buffer_, bytes_received)) {
+                    stop();
+                    return;
+                }
+        
+                write_data();        
+                
+                if (!writing_ && handler_->should_stop()) {
+                    stop();
+                    return;
+                }
+                
+                read_data();
+            }
+        );
+    }
+    
+    /// Write data on socket
+    void write_data()
+    {
+        if (writing_) {
+            return;
+        }
+        
+        size_t len = 0;
+        if (!handler_->on_write(write_buffer_, len)) {
+            stop();
+            return;
+        }
+        
+        if (len == 0) {
+            if (handler_->should_stop()) {
+                stop();
+            }
+            return;
+        }
+        
+        // Change state of connection
+        writing_ = true;
+        deadline_.expires_from_now(read_timeout_);
+        
+        auto self = this->shared_from_this();
+        socket_.async_write_some(
+            as::buffer(write_buffer_, len),
+            [this,self](const boost::system::error_code& ec, size_t bytes_sent) {
+                if (ec) {
+                    stop();
+                    return;
+                }
+                
+                // Ready to write
+                writing_ = false;
+                
+                write_data();
+            }
+        );
+    }
+    
 private:
     server_type&        server_;
     socket_type         socket_;
     
     handler_ptr         handler_;
+    
+    std::array<uint8_t, 8128>    read_buffer_;
+    std::array<uint8_t, 65536>   write_buffer_;
+    
+    bool                writing_ = false;
     
     as::deadline_timer          deadline_;
     boost::posix_time::time_duration   tls_handshake_timeout_;
