@@ -54,7 +54,14 @@ BOOST_AUTO_TEST_CASE(instanciate_tcp_server)
         boost::posix_time::millisec(5000)
     );
     
-    srv.listen(dummy, "0.0.0.0", "12345", true);
+    std::thread server([&](){
+        srv.listen(dummy, "0.0.0.0", "12345", true);
+    });
+    
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    srv.stop();
+    
+    srv.join();
 }
 
 BOOST_AUTO_TEST_SUITE_END();
