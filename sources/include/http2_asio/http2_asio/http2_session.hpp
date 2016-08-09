@@ -86,9 +86,9 @@ public:
         }
         return true;
     }
-        
-    inline bool should_stop() const
-    { return false; }
+    
+    /// Stop http2 session    
+    bool should_stop() const;
 
     inline as::io_service&     get_io_service()
     { return io_service_; }

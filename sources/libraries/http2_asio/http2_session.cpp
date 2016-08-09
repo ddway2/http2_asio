@@ -11,6 +11,22 @@
 namespace h2a {
 
 namespace {
+    
+// Stream error_code
+int
+stream_error_callback(
+    nghttp2_session* session,
+    int32_t stream_id,
+    uint32_t error_code
+)
+{
+    return nghttp2_submit_rst_stream(
+        session,
+        NGHTTP2_FLAG_NONE,
+        stream_id,
+        error_code
+    );
+}
 
 // Header Begins
 int 
@@ -21,6 +37,17 @@ on_begin_headers_callback(
 )
 {
     auto self = static_cast<http2_session*>(user_data);
+    
+    if (
+        frame->hd.type != NGHTTP2_HEADERS
+        ||
+        frame->headers.cat != NGHTTP2_HCAT_REQUEST
+    ) {
+        return 0;
+    }
+    
+    //self->create_stream(frame->hd.stream_id);
+    
     return 0;
 }
 
@@ -160,6 +187,13 @@ http2_session::start()
     nghttp2_submit_settings(session_, NGHTTP2_FLAG_NONE, &entry, 1);
     
     return true;
+}
+
+bool
+http2_session::should_stop() const
+{
+    return !nghttp2_session_want_read(session_) &&
+           ! nghttp2_session_want_write(session_);
 }
     
 }   // namespace h2a
