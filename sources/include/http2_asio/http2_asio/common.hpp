@@ -30,6 +30,8 @@ using boost::asio::ip::tcp;
 using ssl_socket = boost::asio::ssl::stream<tcp::socket>;
 using ssl_context = as::ssl::context;
 using ssl_context_ptr = std::shared_ptr<ssl_context>;
+
+using write_signal_callback = std::function<void()>;
     
 HTTP2_ASIO_API bool tls_h2_negotiated(ssl_socket& socket);
 HTTP2_ASIO_API bool check_h2_is_selected(const std::string_view& proto);

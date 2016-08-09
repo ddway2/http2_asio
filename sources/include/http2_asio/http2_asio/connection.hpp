@@ -46,7 +46,9 @@ public:
         
         handler_ = std::make_shared<handler_type>(
             socket_.get_io_service(),
-            socket_.lowest_layer().remote_endpoint(ec)    
+            socket_.lowest_layer().remote_endpoint(ec),
+            server_,
+            [this](){ write_data(); }
         );
         
         // Error during http2 handler start

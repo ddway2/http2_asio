@@ -14,7 +14,10 @@ public:
         
         handler_type(
             boost::asio::io_service& io,
-            boost::asio::ip::tcp::endpoint ep)
+            boost::asio::ip::tcp::endpoint ep,
+            dummy_server& s,
+            h2a::write_signal_callback c
+            )
         {}
         
         inline bool start()
