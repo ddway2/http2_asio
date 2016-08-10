@@ -46,7 +46,7 @@ on_begin_headers_callback(
         return 0;
     }
     
-    //self->create_stream(frame->hd.stream_id);
+    self->create_stream(frame->hd.stream_id);
     
     return 0;
 }
@@ -64,6 +64,23 @@ on_header_callback(
 )
 {
     auto self = static_cast<http2_session*>(user_data);
+    auto stream_id = frame->hd.stream_id;
+    
+    if (
+        frame->hd.type != NGHTTP2_HEADERS
+        ||
+        frame->headers.cat != NGHTTP2_HCAT_REQUEST
+    ) {
+        return 0;
+    }
+    
+    auto stream = self->find_stream(stream_id);
+    if (!stream) {
+        return 0;
+    }
+    
+    
+
     return 0;
 }
 
@@ -76,6 +93,16 @@ on_frame_recv_callback(
 )
 {
     auto self = static_cast<http2_session*>(user_data); 
+    auto stream = self->find_stream(frame->hd.stream_id);
+    
+    if (!stream) {
+        return 0;
+    }
+    
+    switch(frame->hd.type) {
+        
+    }
+    
     return 0;
 }
 

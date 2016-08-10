@@ -3,6 +3,8 @@
 #include <http2-asio/config.h>
 #include <http2_asio/common.hpp>
 
+#include <http2_asio/http2_session.hpp>
+
 #include <nghttp2/nghttp2.h>
 
 #include <memory>
@@ -101,6 +103,35 @@ private:
             write_signal_();
         }
     }
+    
+    /// Create new_stream
+    inline http2_stream* make_stream(int32_t stream_id);
+    {
+        http2_stream* stream = new http2_stream(stream_id);
+        stream_map_[stream_id] = stream;
+        return stream;
+    }
+    
+    /// Destroy stream
+    inline void destroy_stream(int32_t stream_id)
+    {
+        auto found = stream_map_.find(stream_id);
+        if (found) {
+            delete found->second;
+            stream_map_.erase(found);
+        }
+    }
+    
+    /// Get Stream ID
+    inline http2_stream* find_stream(int32_t stream_id)
+    {
+        auto found = stream_map_.find(stream_id);
+        if (found) {
+            return found->second;
+        }
+        return nullptr;
+    }
+    
 private:
     class callback_guard
     {
@@ -118,6 +149,8 @@ private:
     
     friend class callback_guard;
     
+    using stream_map_type = std::unordered_map<int32_t, http2_stream*>;
+    
 private:
     as::io_service&             io_service_;
     as::ip::tcp::endpoint       ep_;
@@ -131,6 +164,8 @@ private:
     
     bool                        callback_inside_ = false;
     write_signal_callback       write_signal_;
+    
+    stream_map_type             stream_map_;
 };
     
 }   // namespace h2a
