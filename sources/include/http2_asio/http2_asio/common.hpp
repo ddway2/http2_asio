@@ -78,5 +78,15 @@ inline defer_handle<Func, Args...> defer(Func&& f, Args&& ...args)
             std::forward<Args>(args)...
         );
 }
-  
+
+/// Helper function for bytes conversion
+constexpr uint64_t operator"" _k(uint64_t k)
+{ return k * 1024; }
+
+const uint64_t operator"" _m (uint64_t m)
+{ return m * 1024 *1024; }
+
+constexpr uint64_t operator"" _g (uint64_t g)
+{ return g * 1024 * 1024 * 1024; }
+
 }   // namespace h2a

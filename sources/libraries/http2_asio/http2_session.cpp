@@ -100,7 +100,12 @@ on_frame_recv_callback(
     }
     
     switch(frame->hd.type) {
+    case NGHTTP2_DATA:
+    
+    break;
+    case NGHTTP2_HEADERS: {
         
+    }
     }
     
     return 0;

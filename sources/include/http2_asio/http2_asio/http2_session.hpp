@@ -33,7 +33,11 @@ public:
     {}
     
     ~http2_session()
-    {}
+    {
+        for (auto& s : stream_map_) {
+            delete s.second;
+        }
+    }
     
     bool start();
     
