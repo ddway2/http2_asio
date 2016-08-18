@@ -46,7 +46,7 @@ on_begin_headers_callback(
         return 0;
     }
     
-    self->create_stream(frame->hd.stream_id);
+    self->make_stream(frame->hd.stream_id);
     
     return 0;
 }
@@ -79,6 +79,7 @@ on_header_callback(
         return 0;
     }
     
+    // TODO: Prepare header request
     
 
     return 0;
@@ -101,11 +102,19 @@ on_frame_recv_callback(
     
     switch(frame->hd.type) {
     case NGHTTP2_DATA:
-    
+        if (frame->hd.flags & NGHTTP2_FLAG_END_STREAM) {
+            stream->end_of_stream();
+        }
     break;
-    case NGHTTP2_HEADERS: {
-        
-    }
+    case NGHTTP2_HEADERS: 
+        if (frame->headers.cat == NGHTTP2_HCAT_REQUEST) {
+            // Call request
+            
+            if (frame->hd.flags & NGHTTP2_FLAG_END_STREAM) {
+                stream->end_of_stream();
+            }
+        }
+    break;
     }
     
     return 0;
@@ -123,6 +132,14 @@ on_data_chunk_recv_callback(
 )
 {
     auto self = static_cast<http2_session*>(user_data); 
+    auto stream = self->find_stream(stream_id);
+    
+    if (!stream) {
+        return 0;
+    }
+    
+    stream->call_on_data(data, size);
+    
     return 0;
 }
 
@@ -135,7 +152,16 @@ on_stream_close_callback(
     void* user_data
 )
 {
-    auto self = static_cast<http2_session*>(user_data); 
+    auto self = static_cast<http2_session*>(user_data);
+    auto stream = self->find_stream(stream_id);
+    
+    if (!stream) {
+        return 0;
+    }
+    
+    stream->call_on_close(error_code);
+    self->destroy_stream(stream_id);
+    
     return 0;
 }
 
@@ -147,7 +173,18 @@ on_frame_send_callback(
     void* user_data
 )
 {
-    auto self = static_cast<http2_session*>(user_data); 
+    if (frame->hd.type != NGHTTP2_PUSH_PROMISE) {
+        return 0;
+    }
+    
+    auto self = static_cast<http2_session*>(user_data);
+    auto stream = self->find_stream(frame->push_promise.promised_stream_id);
+    
+    if (!stream) {
+        return 0;
+    }
+    stream->push_promise_sent();
+    
     return 0;
 }
 
@@ -160,7 +197,17 @@ on_frame_not_send_callback(
     void* user_data
 )
 {
-    auto self = static_cast<http2_session*>(user_data); 
+    if (frame->hd.type != NGHTTP2_HEADERS) {
+        return 0;
+    }
+    
+    nghttp2_submit_rst_stream(
+        session, 
+        NGHTTP2_FLAG_NONE, 
+        frame->hd.stream_id,
+        NGHTTP2_INTERNAL_ERROR
+    );
+    
     return 0;
 }
 

@@ -18,10 +18,23 @@ public:
     : stream_id_(stream_id)
     {}
     
+    
+    void call_on_data(const uint8_t* data, size_t size)
+    {}
+    
+    void end_of_stream()
+    {}
+    
+    void call_on_close(uint32_t error_code)
+    {}
+    
+    void push_promise_sent()
+    {}
+    
 private:
     int32_t         stream_id_;
 };
     
-using http2_stream_ptr = std::unique<http2_stream>;
+using http2_stream_ptr = std::unique_ptr<http2_stream>;
     
 }   // namespace h2a

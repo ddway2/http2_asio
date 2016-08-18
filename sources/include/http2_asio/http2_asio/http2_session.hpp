@@ -4,12 +4,14 @@
 #include <http2_asio/common.hpp>
 
 #include <http2_asio/http2_session.hpp>
+#include <http2_asio/http2_stream.hpp>
 
 #include <nghttp2/nghttp2.h>
 
 #include <memory>
 #include <array>
 #include <functional>
+#include <unordered_map>
 
 namespace h2a {
     
@@ -99,7 +101,6 @@ public:
     inline as::io_service&     get_io_service()
     { return io_service_; }
     
-private:
 
     inline void signal_write()
     {
@@ -109,7 +110,7 @@ private:
     }
     
     /// Create new_stream
-    inline http2_stream* make_stream(int32_t stream_id);
+    inline http2_stream* make_stream(int32_t stream_id)
     {
         http2_stream* stream = new http2_stream(stream_id);
         stream_map_[stream_id] = stream;
@@ -120,7 +121,7 @@ private:
     inline void destroy_stream(int32_t stream_id)
     {
         auto found = stream_map_.find(stream_id);
-        if (found) {
+        if (found != stream_map_.end()) {
             delete found->second;
             stream_map_.erase(found);
         }
@@ -130,7 +131,7 @@ private:
     inline http2_stream* find_stream(int32_t stream_id)
     {
         auto found = stream_map_.find(stream_id);
-        if (found) {
+        if (found != stream_map_.end()) {
             return found->second;
         }
         return nullptr;
