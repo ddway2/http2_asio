@@ -80,7 +80,13 @@ on_header_callback(
     }
     
     // TODO: Prepare header request
+    // switch (nghttp2::http2::lookup_token(name, namelen)) {
+    // case nghttp2::http2::HD__METHOD:
     
+    //     break;
+    // default:
+    //     break;
+    // }
 
     return 0;
 }
